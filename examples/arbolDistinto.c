@@ -11,10 +11,10 @@ void fractalTree(Turtle *turtle, float length, int depth){
 	turtleForward(turtle, length);
 
 	turtleLeft(turtle, 30);
-	fractalTree(turtle, length * 0.7f, depth - 1);
+	fractalTree(turtle, length * 0.8f, depth - 1);
 
 	turtleRight(turtle, 60);
-	fractalTree(turtle, length * 0.7f, depth - 1);
+	fractalTree(turtle, length * 0.5f, depth - 1);
 
 	turtleLeft(turtle, 30);
 	turtleBackward(turtle, length);
@@ -25,10 +25,10 @@ void draw(Turtle *turtle){
 	turtleGoTo(turtle, 400.0f, 800.0f);
 	turtleRight(turtle, -90);
 	turtlePenDown(turtle);
-       	fractalTree(turtle, 80.0f, 9);
+       	fractalTree(turtle, 150.0f, 9);
 }
 
 int main(void){
-	turtleRun(draw, 800, 800, "Fractal Tree");
+	turtleRun(draw, 800, 800, "Fractal Tree Asimetrico");
 	return 0;
 }
