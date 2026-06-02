@@ -4,8 +4,8 @@ LDLIBS = -lcsfml-graphics -lcsfml-window -lcsfml-system -lm
 
 all: testLine
 
-testLine: turtlec.c examples/arbolDistinto.c turtlec.h
-	$(CC) $(CFLAGS) turtlec.c examples/arbolDistinto.c -o arbolDistinto $(LDLIBS)
+testLine: turtlec.c examples/arbolProfundidad.c turtlec.h
+	$(CC) $(CFLAGS) turtlec.c examples/arbolProfundidad.c -o arbolProfundidad $(LDLIBS)
 
 clean:
-	rm -f arbolDistinto.c
+	rm -f arbolProfundidad.c
