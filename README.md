@@ -1,412 +1,139 @@
-# TurtleC
+# Laboratorio: Recursividad y Fractales
 
-TurtleC es una biblioteca sencilla en C para dibujar con una tortuga usando CSFML. Está pensada para cursos introductorios de programación en C, especialmente para practicar funciones, punteros, structs, memoria dinámica y, más adelante, recursión.
+Práctica de programación en C usando gráficos de tortuga (`turtlec`) para generar fractales y árboles recursivos.
 
-La biblioteca está inspirada en el módulo `turtle` de Python y en la tradición educativa de los gráficos de tortuga. La documentación oficial de Python explica que `turtle` implementa herramientas geométricas introducidas originalmente en Logo. Logo fue desarrollado en 1967 por Wally Feurzeig, Seymour Papert y Cynthia Solomon. TurtleC no es una copia de Python `turtle`; es una pequeña biblioteca didáctica escrita en C con una interfaz similar en espíritu.
+---
 
-Referencias históricas:
+## Reto 1 — Árbol de 3 Ramas (`arbol3ramas.c`)
 
-- Python Software Foundation, documentación del módulo `turtle`: https://docs.python.org/3/library/turtle.html
-- Cynthia Solomon, historia de Logo: https://logothings.github.io/logothings/
+Árbol fractal simétrico donde cada nodo se divide en **tres ramas** del mismo tamaño relativo. Las ramas externas se giran ±30° y la central continúa recta.
 
-## Dependencias
+![Reto 1](assets/reto1.png)
 
-En Ubuntu puede instalar las dependencias con:
+| Aspecto | Detalle |
+|---|---|
+| **Caso base** | `depth == 0` o `length < 5` → retorna sin dibujar |
+| **Llamadas recursivas por nivel** | 3 (`fractalTree` se llama tres veces con `length * 0.7f`) |
+| **Posición y orientación de la tortuga** | Se avanza con `turtleForward` al inicio del segmento; al terminar las tres ramas se regresa con `turtleBackward` a la posición original. Los giros se balancean: `turtleLeft(30)` antes de la rama izquierda, `turtleRight(30)` para neutralizar y girar a la derecha, `turtleRight(30)` antes de la rama derecha, `turtleLeft(30)` para volver al eje central. |
 
-```bash
-sudo apt install gcc make libcsfml-dev
-```
+---
+
+## Reto 2 — Árbol Asimétrico (`arbolDistinto.c`)
+
+Árbol fractal **asimétrico**: la rama izquierda conserva el 80 % de la longitud y la rama derecha solo el 50 %, lo que produce una forma orgánica e irregular.
+
+![Reto 2](assets/reto2.png)
+
+| Aspecto | Detalle |
+|---|---|
+| **Caso base** | `depth == 0` o `length < 5` → retorna sin dibujar |
+| **Llamadas recursivas por nivel** | 2 (`length * 0.8f` para la izquierda, `length * 0.5f` para la derecha) |
+| **Posición y orientación de la tortuga** | Se avanza con `turtleForward` al iniciar. Luego `turtleLeft(30)` para la rama izquierda, `turtleRight(60)` para pasar a la rama derecha, `turtleLeft(30)` para restaurar el ángulo original. Finalmente `turtleBackward` devuelve la tortuga al punto de origen del segmento. |
+
+---
+
+## Reto 3 — Árbol con Color por Profundidad (`arbolProfundidad.c`)
+
+Árbol fractal de 2 ramas donde el color de cada segmento varía según el nivel de profundidad, generando un degradado visual de tonos marrones (raíz/tronco) a verdes (hojas).
+
+![Reto 3](assets/reto3.png)
+
+| Aspecto | Detalle |
+|---|---|
+| **Caso base** | `depth == 0` o `length < 5` → retorna sin dibujar |
+| **Llamadas recursivas por nivel** | 2 (`fractalTree` se llama dos veces con `length * 0.7f`) |
+| **Posición y orientación de la tortuga** | Igual que el reto 2: `turtleForward` al inicio, giros compensados (`Left 30` → `Right 60` → `Left 30`) y `turtleBackward` al final. Se restaura también el color con `colorDepth(turtle, depth)` antes del `turtleBackward` para que el segmento padre mantenga su color correcto. |
+
+**Paleta de colores (`colorDepth`):**
+
+| `depth % 7` | Color |
+|---|---|
+| 0 | Marrón oscuro `(120, 70, 20)` |
+| 1 | Marrón `(180, 100, 30)` |
+| 2 | Marrón claro `(220, 140, 40)` |
+| 3 | Amarillo verdoso `(180, 180, 60)` |
+| 4 | Verde claro `(120, 200, 60)` |
+| 5 | Verde medio `(60, 180, 60)` |
+| 6 | Verde oscuro `(20, 120, 20)` |
+
+---
+
+## Reto 4 — Curva de Lévy (`levy.c`)
+
+Implementación de la **Curva C de Lévy**: en cada nivel el segmento se reemplaza por dos segmentos de longitud `length / √2` rotados 45°, produciendo una curva fractal con aspecto de espiral cuadrada. El color varía por nivel usando 9 tonos arcoíris.
+
+![Reto 4](assets/reto4.png)
+
+| Aspecto | Detalle |
+|---|---|
+| **Caso base** | `depth == 0` → dibuja el segmento con `turtleForward` y retorna |
+| **Llamadas recursivas por nivel** | 2 (`levy` se llama dos veces con `length / sqrt(2)` y `depth - 1`) |
+| **Posición y orientación de la tortuga** | Antes de la primera llamada: `turtleLeft(45)`. Entre las dos llamadas: `turtleRight(90)`. Después de la segunda llamada: `turtleLeft(45)`. Esto mantiene la orientación neta del segmento (los giros se cancelan: −45 + 90 − 45 = 0°). |
+
+**Paleta de colores (`colorLevel`, 9 casos arcoíris):**
+
+| `level % 9` | Color |
+|---|---|
+| 0 | Rojo `(255, 0, 0)` |
+| 1 | Naranja `(255, 128, 0)` |
+| 2 | Amarillo `(255, 255, 0)` |
+| 3 | Verde-amarillo `(128, 255, 0)` |
+| 4 | Verde `(0, 255, 0)` |
+| 5 | Cian `(0, 255, 255)` |
+| 6 | Azul `(0, 0, 255)` |
+| 7 | Violeta `(127, 0, 255)` |
+| 8 | Magenta `(255, 0, 255)` |
+
+---
+
+## Uso de IA
+
+Se utilizó IA (Claude) como apoyo en el desarrollo de los siguientes aspectos:
+
+### Prompt 1 — Gradiente de tronco a hojas en `colorDepth` (Reto 3)
+
+> "tengo `void colorDepth(Turtle *turtle, int depth){ switch(depth % 7){ case 0: turtleSetColor(turtle, 120, 70, 20); break; case 1: turtleSetColor(turtle, 180, 100, 30); break;` necesito hasta el `case 6`" (colores gradientes)
+
+Se usó para completar los 7 casos del `switch` con un degradado que va de **marrón oscuro** (niveles profundos = tronco/ramas gruesas) a **verde oscuro** (niveles altos = hojas), imitando visualmente la transición natural de un árbol.
+
+---
+
+### Prompt 2 — Paleta arcoíris de 9 colores en `colorLevel` (Reto 4)
+
+> "tengo el siguiente caso de colores:
+> ```c
+> switch(depth % 6){
+>     case 0: turtleSetColor(turtle, 255, 0, 0);   break;
+>     case 1: turtleSetColor(turtle, 255, 164, 0); break;
+>     case 2: turtleSetColor(turtle, 255, 255, 0); break;
+>     case 3: turtleSetColor(turtle, 0, 255, 0);   break;
+>     case 4: turtleSetColor(turtle, 0, 0, 255);   break;
+>     case 5: turtleSetColor(turtle, 127, 0, 127); break;
+> }
+> ```
+> ¿puedes darme para que sean 9 casos? (color arcoíris)"
+
+Se amplió la paleta de 6 a **9 colores arcoíris** añadiendo verde-amarillo, cian y violeta, logrando un recorrido más completo y suave del espectro visible a lo largo de los niveles de la curva de Lévy.
+
+---
+
+### Prompt 3 — Generación de este README
+
+> "a este proyecto, hasle un README.MD para describir los retos propuestos por la practica de 'Recursividad Laboratorio' en este caso los codigos y las capturas son arbol3ramas.c --- reto1; arbolDistinto.c ---- reto2; arbolProfundidad.c ---- reto3; levy.c ---- reto4. la documentacion debe tener comentario sobre cada reto (comentario breve) - cual es el caso base de la funcion recursiva. - cuantas llamadas recursivas realiza la funcion en cada nivel. - que instrucciones permiten que la tortuga mantenga una posicion y orientacion adecuadas. - como uso de IA, incluya los prompts [...]"
+
+---
 
 ## Compilación
 
-Desde el directorio del proyecto:
+```bash
+make arbol3ramas
+make arbolDistinto
+make arbolProfundidad
+make levy
+```
+
+O manualmente:
 
 ```bash
-make
+gcc examples/arbol3ramas.c turtlec.c -o arbol3ramas -lm -lSDL2
 ```
-
-Esto genera el ejecutable:
-
-```bash
-./testLine
-```
-
-## Limpieza
-
-```bash
-make clean
-```
-
-## Ejemplo de uso
-
-```c
-#include "turtlec.h"
-
-int main(void){
-  TurtleApp *app = turtleAppCreate(400, 200, "Test Line");
-
-  if(app == NULL)
-    return 1;
-
-  Turtle *t = turtleAppGetTurtle(app);
-
-  turtlePenUp(t);
-  turtleGoTo(t, 50.0f, 100.0f);
-  turtlePenDown(t);
-
-  turtleSetColor(t, 255, 100, 0);
-  turtleSetSpeed(t, 5.0f);
-  turtleForward(t, 300.0f);
-
-  turtleAppRun(app);
-  turtleAppDestroy(app);
-
-  return 0;
-}
-```
-
-## Modelo básico de uso
-
-La biblioteca separa dos conceptos principales:
-
-- `TurtleApp`: representa la aplicación gráfica completa. Contiene la ventana y una tortuga.
-- `Turtle`: representa la tortuga. Tiene posición, orientación, color de trazo, estado del lápiz y la lista de líneas dibujadas.
-
-El flujo usual de un programa es:
-
-```c
-TurtleApp *app = turtleAppCreate(400, 200, "Mi dibujo");
-Turtle *t = turtleAppGetTurtle(app);
-
-/* instrucciones de dibujo */
-
-turtleAppRun(app);
-turtleAppDestroy(app);
-```
-
-## Coordenadas y ángulos
-
-El sistema de coordenadas usa píxeles:
-
-- El origen `(0, 0)` está en la esquina superior izquierda de la ventana.
-- El eje `x` crece hacia la derecha.
-- El eje `y` crece hacia abajo.
-- La tortuga inicia en el centro de la ventana.
-- La orientación inicial es `0` grados, apuntando hacia la derecha.
-- `turtleRight` aumenta el ángulo.
-- `turtleLeft` disminuye el ángulo.
-
-## API pública
-
-Todas las funciones públicas están declaradas en `turtlec.h`.
-
-### Tipos públicos
-
-```c
-typedef struct Turtle Turtle;
-typedef struct TurtleApp TurtleApp;
-typedef void (*TurtleDrawFunc)(Turtle *turtle);
-```
-
-#### `Turtle`
-
-Representa una tortuga. Sus campos están definidos en el encabezado para mantener la biblioteca simple y fácil de estudiar, pero se recomienda manipularla mediante las funciones públicas.
-
-#### `TurtleApp`
-
-Representa una aplicación gráfica con una ventana y una tortuga asociada. Normalmente se crea con `turtleAppCreate` y se destruye con `turtleAppDestroy`.
-
-#### `TurtleDrawFunc`
-
-Tipo de función que recibe un puntero a `Turtle`. Se usa con `turtleRun` para escribir programas donde las instrucciones de dibujo se agrupan en una función.
-
-Ejemplo:
-
-```c
-void drawSquare(Turtle *t){
-  for(int i = 0; i < 4; i++){
-    turtleForward(t, 100.0f);
-    turtleRight(t, 90.0f);
-  }
-}
-```
-
-### Funciones de inicialización y destrucción de `Turtle`
-
-Estas funciones son de bajo nivel. Para la mayoría de programas se recomienda usar `turtleAppCreate`, `turtleAppGetTurtle` y `turtleAppDestroy`.
-
-#### `void turtleInit(Turtle *turtle, sfRenderWindow *window, unsigned int width, unsigned int height);`
-
-Inicializa una tortuga usando una ventana de CSFML ya creada.
-
-Parámetros:
-
-- `turtle`: puntero a la tortuga que será inicializada.
-- `window`: ventana de CSFML donde se dibujará.
-- `width`: ancho de la ventana en píxeles.
-- `height`: alto de la ventana en píxeles.
-
-Después de llamar esta función, la tortuga queda en el centro de la ventana, con el lápiz abajo, color blanco y orientación inicial de `0` grados.
-
-#### `void turtleDestroy(Turtle *turtle);`
-
-Libera los recursos internos asociados a una tortuga.
-
-Parámetros:
-
-- `turtle`: puntero a la tortuga que se desea destruir.
-
-No destruye la ventana de CSFML. Si la tortuga fue obtenida desde un `TurtleApp`, no llame directamente esta función; use `turtleAppDestroy`.
-
-### Movimiento
-
-#### `void turtleForward(Turtle *turtle, float dist);`
-
-Avanza la tortuga en la dirección actual.
-
-Parámetros:
-
-- `turtle`: tortuga que se moverá.
-- `dist`: distancia en píxeles.
-
-Si el lápiz está abajo, dibuja una línea desde la posición anterior hasta la nueva posición. Si el lápiz está arriba, solo mueve la tortuga. Una distancia negativa produce un movimiento en sentido contrario.
-
-#### `void turtleBackward(Turtle *turtle, float dist);`
-
-Retrocede la tortuga respecto de su dirección actual.
-
-Parámetros:
-
-- `turtle`: tortuga que se moverá.
-- `dist`: distancia en píxeles.
-
-Internamente equivale a llamar `turtleForward` con la distancia negativa.
-
-#### `void turtleGoTo(Turtle *turtle, float x, float y);`
-
-Mueve la tortuga a una posición absoluta de la ventana.
-
-Parámetros:
-
-- `turtle`: tortuga que se moverá.
-- `x`: coordenada horizontal de destino.
-- `y`: coordenada vertical de destino.
-
-Si el lápiz está abajo, dibuja una línea desde la posición actual hasta `(x, y)`. Si el lápiz está arriba, solo cambia la posición.
-
-#### `void turtleHome(Turtle *turtle);`
-
-Lleva la tortuga al centro de la ventana y restablece su orientación a `0` grados.
-
-Parámetros:
-
-- `turtle`: tortuga que será reposicionada.
-
-Esta función no borra las líneas dibujadas previamente.
-
-### Giro y orientación
-
-#### `void turtleRight(Turtle *turtle, float angle);`
-
-Gira la tortuga hacia la derecha.
-
-Parámetros:
-
-- `turtle`: tortuga que girará.
-- `angle`: ángulo de giro en grados.
-
-#### `void turtleLeft(Turtle *turtle, float angle);`
-
-Gira la tortuga hacia la izquierda.
-
-Parámetros:
-
-- `turtle`: tortuga que girará.
-- `angle`: ángulo de giro en grados.
-
-### Lápiz y color
-
-#### `void turtlePenUp(Turtle *turtle);`
-
-Levanta el lápiz.
-
-Parámetros:
-
-- `turtle`: tortuga cuyo lápiz se levantará.
-
-Después de llamar esta función, los movimientos no dibujan líneas.
-
-#### `void turtlePenDown(Turtle *turtle);`
-
-Baja el lápiz.
-
-Parámetros:
-
-- `turtle`: tortuga cuyo lápiz se bajará.
-
-Después de llamar esta función, los movimientos vuelven a dibujar líneas.
-
-#### `void turtleSetColor(Turtle *turtle, uint8_t r, uint8_t g, uint8_t b);`
-
-Cambia el color del lápiz y de la figura que representa a la tortuga.
-
-Parámetros:
-
-- `turtle`: tortuga cuyo color se cambiará.
-- `r`: componente roja, entre `0` y `255`.
-- `g`: componente verde, entre `0` y `255`.
-- `b`: componente azul, entre `0` y `255`.
-
-Ejemplo:
-
-```c
-turtleSetColor(t, 255, 0, 0);
-```
-
-### Velocidad
-
-#### `void turtleSetSpeed(Turtle *turtle, float speed);`
-
-Cambia la velocidad visual de la tortuga.
-
-Parámetros:
-
-- `turtle`: tortuga cuya velocidad se cambiará.
-- `speed`: valor positivo de velocidad.
-
-Un valor mayor produce una animación más rápida. Si `speed` es menor o igual que cero, la biblioteca usa `1.0f` como valor por defecto.
-
-### Dibujo de figuras simples
-
-#### `void turtleCircle(Turtle *turtle, float radius);`
-
-Dibuja una aproximación poligonal de un círculo.
-
-Parámetros:
-
-- `turtle`: tortuga que dibujará el círculo.
-- `radius`: radio aproximado del círculo en píxeles.
-
-La función aproxima el círculo usando varios pasos cortos de avance y giro.
-
-### Limpieza y redibujado
-
-#### `void turtleClear(Turtle *turtle);`
-
-Borra todas las líneas dibujadas por la tortuga.
-
-Parámetros:
-
-- `turtle`: tortuga cuyo dibujo se limpiará.
-
-No cambia la posición, orientación, color ni estado del lápiz.
-
-#### `void turtleDraw(Turtle *turtle);`
-
-Dibuja en la ventana las líneas acumuladas y la figura de la tortuga.
-
-Parámetros:
-
-- `turtle`: tortuga que será dibujada.
-
-Normalmente no es necesario llamar esta función directamente, porque `turtleUpdateDisplay` y `turtleAppRun` la usan internamente.
-
-#### `void turtleUpdateDisplay(Turtle *turtle);`
-
-Actualiza la ventana gráfica después de una operación de dibujo o movimiento.
-
-Parámetros:
-
-- `turtle`: tortuga asociada a la ventana que se actualizará.
-
-Procesa eventos básicos de la ventana, limpia la pantalla, redibuja las líneas, redibuja la tortuga y aplica una pausa según la velocidad configurada.
-
-### Aplicación gráfica
-
-#### `TurtleApp *turtleAppCreate(unsigned int width, unsigned int height, const char *title);`
-
-Crea una aplicación gráfica con una ventana y una tortuga inicializada.
-
-Parámetros:
-
-- `width`: ancho de la ventana en píxeles.
-- `height`: alto de la ventana en píxeles.
-- `title`: título de la ventana.
-
-Retorna:
-
-- Un puntero a `TurtleApp` si la creación fue exitosa.
-- `NULL` si no se pudo reservar memoria o crear la ventana.
-
-La aplicación creada debe destruirse con `turtleAppDestroy`.
-
-#### `Turtle *turtleAppGetTurtle(TurtleApp *app);`
-
-Obtiene la tortuga asociada a una aplicación.
-
-Parámetros:
-
-- `app`: aplicación creada previamente con `turtleAppCreate`.
-
-Retorna:
-
-- Un puntero a la tortuga asociada a la aplicación.
-- `NULL` si `app` es `NULL`.
-
-#### `void turtleAppRun(TurtleApp *app);`
-
-Mantiene abierta la ventana de la aplicación hasta que el usuario la cierre.
-
-Parámetros:
-
-- `app`: aplicación que se ejecutará.
-
-Esta función debe llamarse después de las instrucciones de dibujo para que la ventana permanezca visible.
-
-#### `void turtleAppDestroy(TurtleApp *app);`
-
-Destruye la aplicación gráfica y libera sus recursos.
-
-Parámetros:
-
-- `app`: aplicación creada con `turtleAppCreate`.
-
-Libera la tortuga interna, destruye la ventana y libera la memoria reservada para `TurtleApp`. Después de llamar esta función, no debe usarse nuevamente el puntero `app` ni la tortuga obtenida desde él.
-
-### Ejecución simplificada
-
-#### `void turtleRun(TurtleDrawFunc drawFunc, unsigned int width, unsigned int height, const char *title);`
-
-Crea una aplicación, ejecuta una función de dibujo, mantiene la ventana abierta y libera los recursos al terminar.
-
-Parámetros:
-
-- `drawFunc`: función que recibe una tortuga y contiene las instrucciones de dibujo.
-- `width`: ancho de la ventana en píxeles.
-- `height`: alto de la ventana en píxeles.
-- `title`: título de la ventana.
-
-Ejemplo:
-
-```c
-#include "turtlec.h"
-
-void drawSquare(Turtle *t){
-  for(int i = 0; i < 4; i++){
-    turtleForward(t, 100.0f);
-    turtleRight(t, 90.0f);
-  }
-}
-
-int main(void){
-  turtleRun(drawSquare, 400, 400, "Square");
-  return 0;
-}
-```
-
-## Notas para estudiantes
-
-- Cada función recibe explícitamente el puntero a la tortuga que modifica.
-- Las funciones que crean recursos deben tener una función correspondiente que los libere.
-- `turtleAppCreate` usa memoria dinámica, por eso siempre debe verificarse si retorna `NULL`.
-- `turtleAppDestroy` debe llamarse antes de terminar el programa.
